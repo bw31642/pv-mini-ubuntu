@@ -1,0 +1,60 @@
+{
+  "builders": [
+    {
+      "boot_command": 
+        "<tab>/install/vmlinuz noapic preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg <wait> debian-installer=en_US auto locale=en_US kbd-chooser/method=us <wait> hostname={{ .Name }} <wait> fb=false debconf/frontend=noninteractive <wait> keyboard-configuration/modelcode=SKIP keyboard-configuration/layout=USA keyboard-configuration/variant=USA console-setup/ask_detect=false <wait> initrd=/install/initrd.gz --- quiet <wait><enter>", 
+      "boot_wait": "4s",
+      "guest_additions_path": "VBoxGuestAdditions_{{.Version}}.iso",
+      "guest_os_type": "Ubuntu",
+      "headless": false,
+      "http_directory": "http",
+      "iso_checksum": "574fd244f5069f086065a23f7bdf604f",
+      "iso_checksum_type": "md5",
+      "iso_url": "http://wattsy.duckdns.org:8888/files/ubuntu-mini-i386.iso",
+      "shutdown_command": "echo 'shutdown -P now' > shutdown.sh; echo 'vagrant'|sudo -S sh 'shutdown.sh'",
+      "ssh_password": "vagrant",
+      "ssh_port": 22,
+      "ssh_username": "vagrant",
+      "ssh_wait_timeout": "10000s",
+      "type": "virtualbox-iso",
+      "vm_name": "ubuntu-template",
+      "vboxmanage": [
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--memory",
+          "1024"
+        ],
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--cpus",
+          "2"
+        ]
+      ],
+      "virtualbox_version_file": ".vbox_version"
+    }
+  ],
+  "post-processors": [
+    "vagrant"
+  ],
+  "provisioners": [
+   {
+      "destination": "/tmp",
+      "source": "files",
+      "type": "file"
+   },
+   {
+      "override": {
+        "virtualbox-iso": {
+          "execute_command": "echo 'vagrant' | sudo -S sh '{{ .Path }}'"
+        }
+      },
+      "scripts": [
+        "scripts/setup.sh"
+      ],
+      "type": "shell"
+   }
+  ]
+}
+
